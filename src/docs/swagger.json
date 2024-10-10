@@ -1,0 +1,229 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "GrowTwitter Api",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:8080",
+        "description": "API Localhost"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Signin",
+        "description": "Todas as funcionalidades para efetuar o login"
+      },
+      {
+        "name": "Reply",
+        "description": "Todas as funcionalidades para efetuar um reply"
+      }
+    ],
+    "paths": {
+      "/signin": {
+        "post": {
+          "tags": ["Signin"],
+          "summary": "Login de usuário",
+          "description": "Endpoint para autenticar um usuário através de nome de usuário ou email e senha.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "usernameOrEmail": {
+                      "type": "string",
+                      "example": "usuario@example.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "senha123"
+                    }
+                  },
+                  "required": [
+                    "usernameOrEmail",
+                    "password"
+                  ]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login bem-sucedido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      },
+                      "userLogged": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "username": {
+                            "type": "string",
+                            "example": "usuario"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Requisição inválida",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "ok": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "É preciso informar o nome de usuário ou email para realizar o login"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Credenciais inválidas",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "ok": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Credenciais inválidas"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/reply": {
+        "post": {
+          "tags": ["Reply"],
+          "summary": "Reply de um tweet",
+          "description": "Endpoint para efetuar uma resposta (reply) a um tweet",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string",
+                          "example": "usuario"
+                        }
+                      },
+                      "required": ["username"]
+                    },
+                    "content": {
+                      "type": "string",
+                      "example": "Esta é uma resposta ao tweet"
+                    },
+                    "tweetOriginalId": {
+                      "type": "string",
+                      "example": "12345"
+                    }
+                  },
+                  "required": ["user", "content", "tweetOriginalId"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Reply criado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "ok": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Reply criado com sucesso"
+                      },
+                      "reply": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "67890"
+                          },
+                          "username": {
+                            "type": "string",
+                            "example": "usuario"
+                          },
+                          "content": {
+                            "type": "string",
+                            "example": "Esta é uma resposta ao tweet"
+                          },
+                          "tweetId": {
+                            "type": "string",
+                            "example": "12345"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Erro no servidor ao criar reply",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "ok": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Ocorreu um erro inesperado. Erro: Error - Tweet não encontrado no banco de dados"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  

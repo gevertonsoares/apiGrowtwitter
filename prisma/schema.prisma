@@ -1,0 +1,96 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @db.Uuid @default(uuid())
+  name String @db.VarChar(255)
+  email String @db.VarChar(255) @unique
+  username String @db.VarChar(100) @unique
+  password String @db.Text
+
+  deleted Boolean @db.Boolean @default(false)
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamp() @updatedAt @map("updated_at")
+  deletedAt DateTime? @db.Timestamp() @map("deleted_at")
+
+  tweets Tweet[]
+  likes Like[]
+  replies Reply[]
+
+  followers Follow[] @relation("userFollowers")
+  following Follow[] @relation("userFollowing")
+
+
+  @@map("users")
+}
+
+enum TweetType {
+  TWEET
+  REPLY
+}
+
+model Tweet {
+  id String @id @db.Uuid @default(uuid())
+  content String @db.Text
+  type TweetType @default(TWEET)
+  user User @relation(fields: [username], references:[username])
+  username String 
+
+  replies Reply[] @relation("TweetReplies")
+  likes Like[]
+
+
+  deleted Boolean @db.Boolean @default(false)
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamp() @updatedAt @map("updated_at")
+  deletedAt DateTime? @db.Timestamp() @map("deleted_at")
+
+  @@map("tweets")
+}
+
+model Like {
+  id String @id @db.Uuid @default(uuid())
+  tweet Tweet @relation(fields:[tweetId], references:[id])
+  tweetId String @db.Uuid @map("tweet_id")
+  user User @relation(fields:[username], references:[username])
+  username String
+
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  deletedAt DateTime? @db.Timestamp() @map("deleted_at")
+
+  @@map("likes")
+}
+
+model Reply {
+  id String @id @db.Uuid @default(uuid())
+  content String @db.Text
+  user User @relation(fields: [username], references:[username])
+  username String 
+  tweet Tweet @relation("TweetReplies", fields: [tweetId], references: [id])
+  tweetId String @db.Uuid @map("tweet_id")
+
+
+  @@map("replies")
+}
+
+
+model Follow {
+  id String @id @db.Uuid @default(uuid())
+  follower User @relation("userFollowers", fields: [followerId], references: [id]) //quem segue
+  followerId String @db.Uuid @map("follower_id")
+  following User @relation("userFollowing", fields: [followingId], references: [id])// quem é seguido
+  followingId String @db.Uuid @map("following_id")
+
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
